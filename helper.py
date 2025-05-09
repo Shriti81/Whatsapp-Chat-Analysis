@@ -43,8 +43,11 @@ def most_busy_user(df):
 from wordcloud import WordCloud
 
 def create_wordcloud(selected_user, df):
-    f=open('stop_hinglish.txt', 'r')
-        stop_words = f.read()
+    try:
+        with open('stop_hinglish.txt', 'r', encoding='utf-8') as f:
+            stop_words = f.read()
+    except FileNotFoundError:
+        stop_words = ""
 
     if selected_user != 'Overall':
         df = df[df['user'] == selected_user]
@@ -52,25 +55,23 @@ def create_wordcloud(selected_user, df):
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
 
-    def remove_stop_words(messages):
-        y = []
-        for word in messages.lower().split():
-            if word not in stop_words:
-                y.append(word)
-        return " ".join(y)
+    def remove_stop_words(message):
+        return " ".join([word for word in message.lower().split() if word not in stop_words])
+
+    temp['messages'] = temp['messages'].apply(remove_stop_words)
 
     wc = WordCloud(width=500, height=500, min_font_size=10, background_color='white')
-    temp['messages']=temp['messages'].apply(remove_stop_words)
     df_wc = wc.generate(temp['messages'].str.cat(sep=" "))
 
     return df_wc
 
+def most_common_words(selected_user, df):
+    try:
+        with open('stop_hinglish.txt', 'r', encoding='utf-8') as f:
+            stop_words = f.read()
+    except FileNotFoundError:
+        stop_words = ""
 
-
-
-def most_common_words(selected_user,df):
-    f = open('C:/Users/KIIT/Downloads/stop_hinglish.txt', 'r')
-    stop_words=f.read()
     if selected_user != 'Overall':
         df = df[df['user'] == selected_user]
 
@@ -86,8 +87,9 @@ def most_common_words(selected_user,df):
             if word not in stop_words:
                 words.append(word)
 
-    most_common_df=pd.DataFrame(Counter(words).most_common(20))
+    most_common_df = pd.DataFrame(Counter(words).most_common(20), columns=['word', 'count'])
     return most_common_df
+
 
 
 def emoji_helper(selected_user, df):
