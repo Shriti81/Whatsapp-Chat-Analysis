@@ -43,8 +43,8 @@ def most_busy_user(df):
 from wordcloud import WordCloud
 
 def create_wordcloud(selected_user, df):
-    with open('C:/Users/KIIT/Downloads/stop_hinglish.txt', 'r', encoding='utf-8') as f:
-        stop_words = set(f.read().split())
+    f=open('stop_hinglish.txt', 'r')
+        stop_words = f.read()
 
     if selected_user != 'Overall':
         df = df[df['user'] == selected_user]
@@ -52,12 +52,15 @@ def create_wordcloud(selected_user, df):
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
 
-    def remove_stop_words(message):
-        return " ".join([word for word in message.lower().split() if word not in stop_words])
-
-    temp['messages'] = temp['messages'].apply(remove_stop_words)
+    def remove_stop_words(messages):
+        y = []
+        for word in messages.lower().split():
+            if word not in stop_words:
+                y.append(word)
+        return " ".join(y)
 
     wc = WordCloud(width=500, height=500, min_font_size=10, background_color='white')
+    temp['messages']=temp['messages'].apply(remove_stop_words)
     df_wc = wc.generate(temp['messages'].str.cat(sep=" "))
 
     return df_wc
