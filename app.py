@@ -105,7 +105,7 @@ if uploaded_file is not None:
 
         fig,ax = plt.subplots()
 
-        ax.barh(most_common_df[0],most_common_df[1])
+        ax.barh(most_common_df['word'], most_common_df['count'])
         plt.xticks(rotation='vertical')
 
         st.title('Most Common Words')
